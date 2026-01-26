@@ -2,15 +2,13 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analizador Lexicografico Scanner C</title>
+    <title>Validador de Lenguaje</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Analizador Lexicografico</h1>
-            <p>Herramienta para el analisis de tokens en lenguaje C</p>
+            <h1>Validador de Lenguaje</h1>
         </header>
         
         <div class="column-container">
@@ -20,31 +18,31 @@
                 </div>
                 
                 <div class="controls-wrapper">
-                    <p class="instruction-text">Sube un archivo .c o escribe directamente abajo:</p>
-                    
                     <div class="input-section">
                         <div class="file-group">
                             <label for="archivo" class="btn-file-custom">
-                                Elegir Archivo .c
+                                Elegir Archivo
                             </label>
-                            <input type="file" id="archivo" accept=".c,.cpp,.txt">
+                            <input type="file" id="archivo" accept=".txt,.c,.cpp">
                             <span id="file-name">Sin archivo seleccionado</span>
                         </div>
                         
-                        <button class="btn-primary" onclick="ejecutarAnalisis()">Iniciar Escaneo</button>
-                        <button class="btn-secondary" onclick="limpiarTodo()">Limpiar</button>
+                        <div class="button-group">
+                            <button class="btn-primary" onclick="ejecutarAnalisis()">Validar</button>
+                            <button class="btn-secondary" onclick="limpiarTodo()">Limpiar</button>
+                        </div>
                     </div>
                 </div>
 
-                <textarea id="editor" placeholder="Escribe tu codigo aqui o sube un archivo..."></textarea>
+                <textarea id="editor" placeholder="Escribe tu codigo aqui o sube un archivo para validar..."></textarea>
             </div>
     
             <div class="column">
                 <div class="card-header">
-                    <h3>Resultados de Tokens</h3>
+                    <h3>Resultado</h3>
                 </div>
                 <div id="panelResultados">
-                    <p class="empty-msg">Los resultados apareceran aqui despues del analisis.</p>
+                    <p class="empty-msg">Esperando validacion...</p>
                 </div>
             </div>
         </div>
@@ -52,11 +50,21 @@
     
     <script src="scanner.js"></script>
     <script>
+        // Muestra el nombre del archivo al seleccionarlo
         document.getElementById('archivo').onchange = function () {
             if (this.files[0]) {
                 document.getElementById('file-name').textContent = "Seleccionado: " + this.files[0].name;
             }
         };
+
+        function limpiarTodo() {
+            document.getElementById('archivo').value = "";
+            document.getElementById('file-name').textContent = "Sin archivo seleccionado";
+            document.getElementById('editor').value = "";
+            document.getElementById('panelResultados').innerHTML = '<p class="empty-msg">Esperando validacion...</p>';
+            posicionActual = 0;
+            contenidoFuente = "";
+        }
     </script>
 </body>
 </html>

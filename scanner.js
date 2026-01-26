@@ -1,35 +1,12 @@
-// Variables de control global
 let posicionActual = 0;
 let contenidoFuente = "";
-
-// Diccionario de apoyo
-const PALABRAS_RESERVADAS = ["auto", "break", "case", "char", "const", "continue", "default",
-    "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "inline", "int",
-    "long", "register", "restrict", "return", "short", "signed", "sizeof", "static", "struct",
-    "switch", "typedef", "union", "unsigned", "void", "volatile", "while", "_Alignas",
-    "_Alignof", "_Atomic", "_Bool", "_Complex", "_Generic", "_Imaginary", "_Noreturn",
-    "_Static_assert", "_Thread_local"];
-
-function limpiarTodo() {
-
-    document.getElementById('archivo').value = '';
-    
-    document.getElementById('file-name').textContent = 'Sin archivo seleccionado';
-    
-    document.getElementById('editor').value = '';
-    
-    const panelResultados = document.getElementById('panelResultados');
-    panelResultados.innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues del analisis.</p>';
-    
-    posicionActual = 0;
-    contenidoFuente = '';
-}
+const ALFABETO = ["si", "sino", "finsi", "mientras", "finmientras"];
 
 async function ejecutarAnalisis() {
     const selectorArchivos = document.getElementById('archivo');
     const areaTexto = document.getElementById('editor');
 
-    // Selección de la fuente de datos
+    // Prioriza el archivo si se selecciono uno, de lo contrario usa el texto escrito
     if (selectorArchivos.files[0]) {
         contenidoFuente = await selectorArchivos.files[0].text();
         areaTexto.value = contenidoFuente;
@@ -37,243 +14,87 @@ async function ejecutarAnalisis() {
         contenidoFuente = areaTexto.value;
     }
 
-    if (contenidoFuente === "") {
-        alert("Por favor, ingresa código o sube un archivo.");
-        return;
-    }
+    if (contenidoFuente.trim() === "") return;
 
-    // Reiniciamos para un nuevo análisis
     posicionActual = 0;
-    const contadorTokens = {
-        PR: [],
-        ID: [],
-        OP: [],
-        NUM: [],
-        NUM_REAL: [],
-        CADENA: [],
-        CARACTER: []
-    };
+    const tokens = [];
 
-    // Recorrido principal: Seguimos la lógica original de avanzar por el texto
+    // Fase 1: Scanner (Lexico)
     while (posicionActual < contenidoFuente.length) {
-        let resultadoToken = obtenerSiguienteToken();
-
-        if (resultadoToken !== null && resultadoToken.tipo !== "SKIP") {
-            // Guardamos el lexema según la categoría
-            const tipo = resultadoToken.tipo;
-            const lexema = resultadoToken.lexema;
-
-            if (tipo === "PR") {
-                contadorTokens.PR.push(lexema);
-            } else if (tipo === "ID") {
-                contadorTokens.ID.push(lexema);
-            } else if (tipo === "OP") {
-                contadorTokens.OP.push(lexema);
-            } else if (tipo === "NUM") {
-                contadorTokens.NUM.push(lexema);
-            } else if (tipo === "NUM_REAL") {
-                contadorTokens.NUM_REAL.push(lexema);
-            } else if (tipo === "CADENA") {
-                contadorTokens.CADENA.push(lexema);
-            } else if (tipo === "CARACTER") {
-                contadorTokens.CARACTER.push(lexema);
-            }
+        let token = obtenerSiguienteToken();
+        if (token && token.tipo !== "SKIP") {
+            tokens.push(token);
         }
     }
 
-    mostrarResultadosEnTabla(contadorTokens);
+    // Fase 2: Automata a Pila (Sintactico)
+    const validacion = validarEstructura(tokens);
+    mostrarResultado(validacion);
 }
 
 function obtenerSiguienteToken() {
     let caracter = contenidoFuente.charAt(posicionActual);
 
-    // Se omiten espacios, tabulaciones y saltos de línea
-    if (caracter === ' ' || caracter === '\n' || caracter === '\r' || caracter === '\t') {
+    if (/\s/.test(caracter)) {
         posicionActual++;
         return { tipo: "SKIP" };
     }
 
-    // Comentarios 
-    if (caracter === '/') {
-        let siguiente = contenidoFuente.charAt(posicionActual + 1);
-
-        // Comentario de una línea
-        if (siguiente === '/') {
-            while (posicionActual < contenidoFuente.length && contenidoFuente.charAt(posicionActual) !== '\n') {
-                posicionActual++;
-            }
-            return { tipo: "SKIP" };
-        }
-
-        // Comentario de bloque
-        if (siguiente === '*') {
-            posicionActual = posicionActual + 2;
-            while (posicionActual < contenidoFuente.length) {
-                if (contenidoFuente.charAt(posicionActual) === '*' && contenidoFuente.charAt(posicionActual + 1) === '/') {
-                    posicionActual = posicionActual + 2;
-                    break;
-                }
-                posicionActual++;
-            }
-            return { tipo: "SKIP" };
-        }
-    }
-    
-    if (caracter === '#') {
-        while (posicionActual < contenidoFuente.length && contenidoFuente.charAt(posicionActual) !== '\n') {
+    if (/[a-zA-Z]/.test(caracter)) {
+        let lexema = "";
+        while (posicionActual < contenidoFuente.length && /[a-zA-Z]/.test(contenidoFuente.charAt(posicionActual))) {
+            lexema += contenidoFuente.charAt(posicionActual);
             posicionActual++;
         }
-        return { tipo: "SKIP" };
-    }
-
-    if (caracter === '"') {
-        let textoCadena = '"';
-        posicionActual++; 
-        while (posicionActual < contenidoFuente.length) {
-            let actual = contenidoFuente.charAt(posicionActual);
-            textoCadena = textoCadena + actual;
-            posicionActual++;
-            if (actual === '"') {
-                break;
-            }
-        }
-        return { tipo: "CADENA", lexema: textoCadena };
-    }
-
-    if (caracter === "'") {
-        let textoChar = "'";
-        posicionActual++;
-        while (posicionActual < contenidoFuente.length) {
-            let actual = contenidoFuente.charAt(posicionActual);
-            textoChar = textoChar + actual;
-            posicionActual++;
-            if (actual === "'") {
-                break;
-            }
-        }
-        return { tipo: "CARACTER", lexema: textoChar };
-    }
-
-    // Identificadores y Palabras Reservadas
-    if ((caracter >= 'a' && caracter <= 'z') || (caracter >= 'A' && caracter <= 'Z') || caracter === '_') {
-        let textoAcumulado = "";
-        
-        while (posicionActual < contenidoFuente.length) {
-            let actual = contenidoFuente.charAt(posicionActual);
-            if ((actual >= 'a' && actual <= 'z') || (actual >= 'A' && actual <= 'Z') || (actual >= '0' && actual <= '9') || actual === '_') {
-                textoAcumulado = textoAcumulado + actual;
-                posicionActual++;
-            } else {
-                break;
-            }
-        }
-
-        // Verificar palabra reservada
-        let esReservada = false;
-        for (let i = 0; i < PALABRAS_RESERVADAS.length; i++) {
-            if (PALABRAS_RESERVADAS[i] === textoAcumulado) {
-                esReservada = true;
-                break;
-            }
-        }
-
-        // Clasificación final
-        let categoriaFinal = "";
-        if (esReservada) {
-            categoriaFinal = "PR";
-        } else {
-            categoriaFinal = "ID";
-        }
-
-        return {
-            tipo: categoriaFinal,
-            lexema: textoAcumulado
-        };
-    }
-
-    // Números (Enteros y decimal)
-    if (caracter >= '0' && caracter <= '9') {
-        let numeroTexto = "";
-        let tieneDecimal = false;
-
-        while (posicionActual < contenidoFuente.length) {
-            let actual = contenidoFuente.charAt(posicionActual);
-            if (actual >= '0' && actual <= '9') {
-                numeroTexto = numeroTexto + actual;
-                posicionActual++;
-            } else if (actual === '.') {
-                tieneDecimal = true;
-                numeroTexto = numeroTexto + actual;
-                posicionActual++;
-            } else {
-                break;
-            }
-        }
-
-        let tipoNumero = "";
-        if (tieneDecimal) {
-            tipoNumero = "NUM_REAL";
-        } else {
-            tipoNumero = "NUM";
-        }
-
-        return {
-            tipo: tipoNumero,
-            lexema: numeroTexto
-        };
-    }
-
-    //  Operadores y símbolos especiales
-    let listaDeOperadores = "+-*/%=<>!&|;,()[]{}";
-    let esOperador = false;
-
-    for (let i = 0; i < listaDeOperadores.length; i++) {
-        if (caracter === listaDeOperadores[i]) {
-            esOperador = true;
-            break;
-        }
-    }
-
-    if (esOperador) {
-        let operadorFinal = caracter;
-        let siguienteCaracter = contenidoFuente.charAt(posicionActual + 1);
-
-        if (caracter === '=' && siguienteCaracter === '=') { operadorFinal = "=="; posicionActual++; }
-        else if (caracter === '!' && siguienteCaracter === '=') { operadorFinal = "!="; posicionActual++; }
-        else if (caracter === '<' && siguienteCaracter === '=') { operadorFinal = "<="; posicionActual++; }
-        else if (caracter === '>' && siguienteCaracter === '=') { operadorFinal = ">="; posicionActual++; }
-        else if (caracter === '+' && siguienteCaracter === '+') { operadorFinal = "++"; posicionActual++; }
-        else if (caracter === '-' && siguienteCaracter === '-') { operadorFinal = "--"; posicionActual++; }
-        else if (caracter === '&' && siguienteCaracter === '&') { operadorFinal = "&&"; posicionActual++; }
-        else if (caracter === '|' && siguienteCaracter === '|') { operadorFinal = "||"; posicionActual++; }
-
-        posicionActual++;
-        return { tipo: "OP", lexema: operadorFinal };
+        let lexLower = lexema.toLowerCase();
+        return { tipo: ALFABETO.includes(lexLower) ? "PR" : "ID", lexema: lexLower };
     }
 
     posicionActual++;
-    return { tipo: "SKIP" };
+    return { tipo: "OTRO", lexema: caracter };
 }
 
-function mostrarResultadosEnTabla(contador) {
-    let tablaHTML = "<table class='results-table'>";
-    tablaHTML += "<thead><tr><th>Tipo de Token</th><th>Cantidad</th><th>Lexemas Encontrados</th></tr></thead>";
-    tablaHTML += "<tbody>";
+function validarEstructura(tokens) {
+    let pila = [];
+    let errores = [];
 
-    let categorias = ["PR", "ID", "OP", "NUM", "NUM_REAL", "CADENA", "CARACTER"];
-
-    for (let i = 0; i < categorias.length; i++) {
-        let clave = categorias[i];
-        let listaLexemas = contador[clave];
-
-        tablaHTML += "<tr>";
-        tablaHTML += "<td class='token-type'>" + clave + "</td>";
-        tablaHTML += "<td>" + listaLexemas.length + "</td>";
-        let simbolos = listaLexemas.length > 0 ? listaLexemas.join('<span class="separador"> - </span>') : "-";
-        tablaHTML += "<td>" + simbolos + "</td>";
-        tablaHTML += "</tr>";
+    for (let token of tokens) {
+        // PUSH: Empilar aperturas
+        if (token.lexema === "si" || token.lexema === "mientras") {
+            pila.push(token.lexema);
+        } 
+        // POP: Desempilar y validar cierres
+        else if (token.lexema === "finsi") {
+            if (pila.length === 0 || pila.pop() !== "si") {
+                errores.push("Error: finsi sin si");
+            }
+        } else if (token.lexema === "finmientras") {
+            if (pila.length === 0 || pila.pop() !== "mientras") {
+                errores.push("Error: finmientras sin mientras");
+            }
+        }
     }
 
-    tablaHTML += "</tbody></table>";
-    document.getElementById('panelResultados').innerHTML = tablaHTML;
+    // Al final la pila debe estar vacia
+    while (pila.length > 0) {
+        errores.push("Error: Estructura " + pila.pop() + " no cerrada");
+    }
+
+    return { esValido: errores.length === 0, mensajes: errores };
+}
+
+function mostrarResultado(val) {
+    let panel = document.getElementById('panelResultados');
+    let clase = val.esValido ? "valido" : "error";
+    let texto = val.esValido ? "ARCHIVO CORRECTO" : "ARCHIVO INCORRECTO";
+
+    let html = `<div class="status-banner ${clase}">${texto}</div>`;
+    
+    if (!val.esValido) {
+        html += `<ul style="margin-top:20px; color:#721c24;">`;
+        val.mensajes.forEach(m => html += `<li>${m}</li>`);
+        html += `</ul>`;
+    }
+
+    panel.innerHTML = html;
 }
