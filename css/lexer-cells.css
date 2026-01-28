@@ -1,0 +1,33 @@
+.instruction-text { 
+    margin-bottom: 20px; 
+    color: #718096; 
+    font-weight: 500; 
+}
+
+.results-table { 
+    width: 100%; 
+    border-collapse: collapse; 
+}
+
+.results-table th { 
+    background: #f7fafc; 
+    padding: 15px; 
+    text-align: left; 
+    border-bottom: 2px solid #e2e8f0; 
+}
+
+.results-table td { 
+    padding: 15px; 
+    border-bottom: 1px solid #edf2f7;
+}
+
+.token-type { 
+    color: #3182ce; 
+    font-weight: 800; 
+}
+
+.separador { 
+    color: #e53e3e; 
+    font-weight: bold; 
+    padding: 0 5px; 
+}

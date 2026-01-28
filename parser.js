@@ -2,10 +2,13 @@ let posicionActual = 0;
 let contenidoFuente = "";
 const ALFABETO = ["si", "sino", "finsi", "mientras", "finmientras"];
 
-async function ejecutarAnalisis() {
+export async function ejecutarAnalisis() {
     const selectorArchivos = document.getElementById('archivo');
     const areaTexto = document.getElementById('editor');
 
+    posicionActual = 0;
+    contenidoFuente = "";
+    
     // Prioriza el archivo si se selecciono uno, de lo contrario usa el texto escrito
     if (selectorArchivos.files[0]) {
         contenidoFuente = await selectorArchivos.files[0].text();

@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Validador de Lenguaje</title>
-    <link rel="stylesheet" href="estilos.css">
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/tabs.css">
+    <link rel="stylesheet" href="css/lexer-cells.css">
 </head>
 <body>
     <div class="container">
@@ -28,8 +30,8 @@
                         </div>
                         
                         <div class="button-group">
-                            <button class="btn-primary" onclick="ejecutarAnalisis()">Validar</button>
-                            <button class="btn-secondary" onclick="limpiarTodo()">Limpiar</button>
+                            <button class="ejecutar" id="ejecutar">Validar</button>
+                            <button class="limpiar" id="limpiar">Limpiar</button>
                         </div>
                     </div>
                 </div>
@@ -41,30 +43,39 @@
                 <div class="card-header">
                     <h3>Resultado</h3>
                 </div>
-                <div id="panelResultados">
-                    <p class="empty-msg">Esperando validacion...</p>
+                
+
+                <div class="tabs-container">
+                    
+                    <div class="tabs-header">
+                        <button class="tab-btn" data-target="lexer">Lexer</button>
+                        <button class="tab-btn active" data-target="parser">Parser</button>
+                    </div>
+
+                    <div class="tab-content-box">
+            
+                        <div id="lexer" class="tab-pane">
+                            <div id="lexer-resultados">
+                                <p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar...</p>
+                            </div>
+                        </div>
+
+                        <div id="parser" class="tab-pane" style="display: block;">
+                            <div id="panelResultados">
+                                <p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar...</p>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <script src="scanner.js"></script>
-    <script>
-        // Muestra el nombre del archivo al seleccionarlo
-        document.getElementById('archivo').onchange = function () {
-            if (this.files[0]) {
-                document.getElementById('file-name').textContent = "Seleccionado: " + this.files[0].name;
-            }
-        };
 
-        function limpiarTodo() {
-            document.getElementById('archivo').value = "";
-            document.getElementById('file-name').textContent = "Sin archivo seleccionado";
-            document.getElementById('editor').value = "";
-            document.getElementById('panelResultados').innerHTML = '<p class="empty-msg">Esperando validacion...</p>';
-            posicionActual = 0;
-            contenidoFuente = "";
-        }
+    <script type="module" src="main.js"></script>
+    <script>
+        
+        
     </script>
 </body>
 </html>
