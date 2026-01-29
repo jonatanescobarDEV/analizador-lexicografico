@@ -11,7 +11,11 @@ document.getElementById('archivo').onchange = function () {
     }
 }
 
+//Ejecutar y limpiar
 async function ejecutarAnalisis() {
+    if(document.getElementById('editor').value === "" && !document.getElementById('archivo').files[0])
+        return alert("Por favor, ingresa código o sube un archivo o texto.");
+
     await lexer.ejecutarAnalisis();
     await parser.ejecutarAnalisis();
 }
@@ -24,6 +28,7 @@ function limpiarTodo() {
     document.getElementById('lexer-resultados').innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar...</p>';
 }
 
+// Lógica de las pestañas
 function openTab(evt, tabName) {
     var panes = document.getElementsByClassName("tab-pane");
     for (var i = 0; i < panes.length; i++) {

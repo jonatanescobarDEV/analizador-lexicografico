@@ -13,25 +13,10 @@ const PALABRAS_RESERVADAS = ["auto", "break", "case", "char", "const", "continue
 export async function ejecutarAnalisis() {
     const selectorArchivos = document.getElementById('archivo');
     const areaTexto = document.getElementById('editor');
-
-    posicionActual = 0;
-    contenidoFuente = "";
     
-    // Selección de la fuente de datos
-    if (selectorArchivos.files[0]) {
-        contenidoFuente = await selectorArchivos.files[0].text();
-        areaTexto.value = contenidoFuente;
-    } else {
-        contenidoFuente = areaTexto.value;
-    }
-
-    if (contenidoFuente === "") {
-        alert("Por favor, ingresa código o sube un archivo.");
-        return;
-    }
-
     // Reiniciamos para un nuevo análisis
     posicionActual = 0;
+    contenidoFuente = "";
     const contadorTokens = {
         PR: [],
         ID: [],
@@ -41,6 +26,14 @@ export async function ejecutarAnalisis() {
         CADENA: [],
         CARACTER: []
     };
+
+    // Selección de la fuente de datos
+    if (selectorArchivos.files[0]) {
+        contenidoFuente = await selectorArchivos.files[0].text();
+        areaTexto.value = contenidoFuente;
+    } else {
+        contenidoFuente = areaTexto.value;
+    }
 
     // Recorrido principal: Seguimos la lógica original de avanzar por el texto
     while (posicionActual < contenidoFuente.length) {

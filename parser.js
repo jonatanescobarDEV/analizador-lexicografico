@@ -1,14 +1,16 @@
 let posicionActual = 0;
 let contenidoFuente = "";
+let tokens = [];
 const ALFABETO = ["si", "sino", "finsi", "mientras", "finmientras"];
 
 export async function ejecutarAnalisis() {
     const selectorArchivos = document.getElementById('archivo');
     const areaTexto = document.getElementById('editor');
-
+    
     posicionActual = 0;
     contenidoFuente = "";
-    
+    tokens = [];
+
     // Prioriza el archivo si se selecciono uno, de lo contrario usa el texto escrito
     if (selectorArchivos.files[0]) {
         contenidoFuente = await selectorArchivos.files[0].text();
@@ -17,87 +19,127 @@ export async function ejecutarAnalisis() {
         contenidoFuente = areaTexto.value;
     }
 
-    if (contenidoFuente.trim() === "") return;
-
-    posicionActual = 0;
-    const tokens = [];
-
-    // Fase 1: Scanner (Lexico)
-    while (posicionActual < contenidoFuente.length) {
-        let token = obtenerSiguienteToken();
-        if (token && token.tipo !== "SKIP") {
-            tokens.push(token);
-        }
-    }
-
     // Fase 2: Automata a Pila (Sintactico)
-    const validacion = validarEstructura(tokens);
+    const validacion = validarEstructura();
     mostrarResultado(validacion);
 }
 
 function obtenerSiguienteToken() {
-    let caracter = contenidoFuente.charAt(posicionActual);
+    while (posicionActual < contenidoFuente.length) {
+        let caracter = contenidoFuente.charAt(posicionActual);
+    
+        if (/[a-zA-Z]/.test(caracter)) {
+            let lexema = "";
+            while (posicionActual < contenidoFuente.length && /[a-zA-Z]/.test(contenidoFuente.charAt(posicionActual))) {
+                lexema += contenidoFuente.charAt(posicionActual);
+                posicionActual++;
+            }
+            let lexLower = lexema.toLowerCase();
 
-    if (/\s/.test(caracter)) {
-        posicionActual++;
-        return { tipo: "SKIP" };
-    }
-
-    if (/[a-zA-Z]/.test(caracter)) {
-        let lexema = "";
-        while (posicionActual < contenidoFuente.length && /[a-zA-Z]/.test(contenidoFuente.charAt(posicionActual))) {
-            lexema += contenidoFuente.charAt(posicionActual);
+            if (ALFABETO.includes(lexLower)) {
+                tokens.push(lexLower);
+                posicionActual++;
+                return lexLower;
+            }
+        } else {
             posicionActual++;
         }
-        let lexLower = lexema.toLowerCase();
-        return { tipo: ALFABETO.includes(lexLower) ? "PR" : "ID", lexema: lexLower };
-    }
-
-    posicionActual++;
-    return { tipo: "OTRO", lexema: caracter };
+    } return null;
 }
 
-function validarEstructura(tokens) {
+function validarEstructura() {
     let pila = [];
-    let errores = [];
+    let qF = 100, qE = -1;
+    let q = 0;
+    
+    while (q !== qF && q !== qE) {
+        let token = obtenerSiguienteToken();
+        let cabezaPila = pila.length > 0 ? pila[pila.length - 1] : null;
+        switch (q) {
+            case 0: 
+                if (pila.length === 0) {
+                    if (token === "si") {
+                        q = 1;
+                        pila.push("si");
+                    } else if (token === "mientras") {
+                        q = 1;
+                        pila.push("mientras");
+                    } else {
+                        q = qE;
+                    }
+                }
+                break;
 
-    for (let token of tokens) {
-        // PUSH: Empilar aperturas
-        if (token.lexema === "si" || token.lexema === "mientras") {
-            pila.push(token.lexema);
-        } 
-        // POP: Desempilar y validar cierres
-        else if (token.lexema === "finsi") {
-            if (pila.length === 0 || pila.pop() !== "si") {
-                errores.push("Error: finsi sin si");
-            }
-        } else if (token.lexema === "finmientras") {
-            if (pila.length === 0 || pila.pop() !== "mientras") {
-                errores.push("Error: finmientras sin mientras");
-            }
+            case 1:
+                if (token === "si") {
+                    pila.push("si");
+                }
+
+                if (token === "sino") {
+                    if (cabezaPila === "si") {
+                        pila.push("sino");
+                    } else {
+                        q = qE;
+                    }
+                }
+
+                if (token === "finsi") {
+                    if (cabezaPila === "si") {
+                        pila.pop();
+                    } else if (cabezaPila === "sino") {
+                        pila.pop();
+                        pila.pop();
+                    } else {
+                        q = qE;
+                    }
+                }
+                
+                if (token === "mientras") {
+                    pila.push("mientras");
+                }
+
+                if (token === "finmientras") {
+                    if (cabezaPila === "mientras") {
+                        pila.pop();
+                    } else {
+                        q = qE;
+                    }
+                }
+
+                if (token === null) {
+                    if (pila.length === 0) {
+                        q = qF;
+                    } else {
+                        q = qE;
+                    }
+                }
+
+                break;
+
         }
     }
 
-    // Al final la pila debe estar vacia
-    while (pila.length > 0) {
-        errores.push("Error: Estructura " + pila.pop() + " no cerrada");
+    if (q === qF){
+        return true;
+    } else {
+        return null;
     }
-
-    return { esValido: errores.length === 0, mensajes: errores };
 }
 
 function mostrarResultado(val) {
     let panel = document.getElementById('panelResultados');
-    let clase = val.esValido ? "valido" : "error";
-    let texto = val.esValido ? "ARCHIVO CORRECTO" : "ARCHIVO INCORRECTO";
+    let clase = val ? "valido" : "error";
+    let texto = val ? "ARCHIVO CORRECTO" : "ARCHIVO INCORRECTO";
 
     let html = `<div class="status-banner ${clase}">${texto}</div>`;
     
-    if (!val.esValido) {
+    /*
+    if (!val) {
         html += `<ul style="margin-top:20px; color:#721c24;">`;
         val.mensajes.forEach(m => html += `<li>${m}</li>`);
         html += `</ul>`;
     }
+    */
 
     panel.innerHTML = html;
 }
