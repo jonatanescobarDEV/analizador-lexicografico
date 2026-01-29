@@ -141,6 +141,7 @@ textarea {
 }
 
 .empty-msg {
+    white-space: pre-wrap;
     text-align: center;
     color: #a0aec0;
     margin: 50px 0px;

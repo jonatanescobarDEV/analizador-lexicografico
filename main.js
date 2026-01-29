@@ -4,6 +4,8 @@ import * as parser from './parser.js';
 document.getElementById('limpiar').addEventListener('click', limpiarTodo);
 document.getElementById('ejecutar').addEventListener('click', ejecutarAnalisis);
 
+document.getElementById('panelResultados').innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar... \n(si-sino-finsi-mientras-finmientras)</p>';
+
 // Muestra el nombre del archivo al seleccionarlo
 document.getElementById('archivo').onchange = function () {
     if (this.files[0]) {
@@ -24,8 +26,8 @@ function limpiarTodo() {
     document.getElementById('archivo').value = "";
     document.getElementById('file-name').textContent = "Sin archivo seleccionado";
     document.getElementById('editor').value = "";
-    document.getElementById('panelResultados').innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar...</p>';
     document.getElementById('lexer-resultados').innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar...</p>';
+    document.getElementById('panelResultados').innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar... \n(si-sino-finsi-mientras-finmientras)</p>';
 }
 
 // Lógica de las pestañas
