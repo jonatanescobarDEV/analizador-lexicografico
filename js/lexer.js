@@ -56,7 +56,7 @@ export function obtenerSiguienteToken() {
     let caracter = contenidoFuente.charAt(posicionActual);
 
     if (posicionActual >= contenidoFuente.length) {
-        return { tipo: "EOF", valor: "$", linea: lineaActual };
+        return { tipo: "EOF", lexema: "$", linea: lineaActual };
     }
 
     if (/\s/.test(caracter)) {

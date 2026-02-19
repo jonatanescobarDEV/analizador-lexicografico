@@ -44,7 +44,7 @@ export async function ejecutarAnalisis() {
         let nodoPrincipal = main();
         ejecutar(nodoPrincipal);
     } catch (error) {
-        datosAImprimir.push(`<span class="codigo-error">${error.message}</span>`);
+        datosAImprimir.push(`<span class="codigo-error"><b>[Linea ${lookahead.linea}]</b> ${error.message}</span>`);
     }
 
     mostrarResultadoPanelParser(datosAImprimir);
@@ -81,7 +81,7 @@ function match(tipoEsperado) {
         lookahead = obtenerSigTokenEspecifico();
         return tokenActual;
     }
-    throw new Error(`[Linea ${lookahead.linea}] Error Sintáctico: Se esperaba '${tipoEsperado}', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`Error Sintáctico: Se esperaba '${tipoEsperado}', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function main() {
@@ -108,7 +108,7 @@ function I() {
         match("PUNTO_COMA");
         return new Nodo("IMPRIMIR", "cout", null, nodoE);
     }
-    throw new Error(`[Linea ${lookahead.linea}] Error Sintáctico: Se esperaba una instrucción, pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`Error Sintáctico: Se esperaba una instrucción, pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function E() {
@@ -116,7 +116,7 @@ function E() {
         const nodoT = T();
         return X(nodoT);
     }
-    throw new Error(`[Linea ${lookahead.linea}] Error en E: Se esperaba número, ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`Error en E: Se esperaba número, ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function X(nodoHeredado) {
@@ -129,7 +129,7 @@ function X(nodoHeredado) {
     else if (SimbolosD.X_EPSILON.includes(lookahead.tipo)) {
         return nodoHeredado;
     }
-    throw new Error(`[Linea ${lookahead.linea}] Error en X: Token '${lookahead.tipo}' ('${lookahead.lexema}') no permitido tras expresión`);
+    throw new Error(`Error en X: Token '${lookahead.tipo}' ('${lookahead.lexema}') no permitido tras expresión`);
 }
 
 function T() {
@@ -137,7 +137,7 @@ function T() {
         const nodoF = F();
         return W(nodoF);
     }
-    throw new Error(`[Linea ${lookahead.linea}] Error en T: Se esperaba número, ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`Error en T: Se esperaba número, ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function W(nodoHeredado) {
@@ -150,7 +150,7 @@ function W(nodoHeredado) {
     else if (SimbolosD.W_EPSILON.includes(lookahead.tipo)) {
         return nodoHeredado;
     }
-    throw new Error(`[Linea ${lookahead.linea}] Error en W: Token '${lookahead.tipo}' ('${lookahead.lexema}') no permitido tras término`);
+    throw new Error(`Error en W: Token '${lookahead.tipo}' ('${lookahead.lexema}') no permitido tras término`);
 }
 
 function F() {
@@ -168,7 +168,7 @@ function F() {
         match("R_PAREN");
         return nodoE;
     }
-    throw new Error(`[Linea ${lookahead.linea}] Error en F: Se esperaba número, ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`Error en F: Se esperaba número, ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 let tablaSimbolos = {};
@@ -181,7 +181,7 @@ function evaluar(nodo) {
         if (nodo.lexema in tablaSimbolos) {
             return tablaSimbolos[nodo.lexema];
         }
-        throw new Error(`[Linea ${lookahead.linea}] Error Semántico: Variable '${nodo.lexema}' no definida`);
+        throw new Error(`Error Semántico: Variable '${nodo.lexema}' no definida`);
     }
     else if (nodo.tipo == "SUMA"){
         return evaluar(nodo.izq) + evaluar(nodo.der);
@@ -197,7 +197,7 @@ function evaluar(nodo) {
     }
     else if (nodo.tipo == "IMPRIMIR"){
         let valor = evaluar(nodo.der);
-        datosAImprimir.push(`Impresión: ${valor}`);
+        datosAImprimir.push(`SALIDA COUT: <b>${valor}</b>`);
         return valor;
     }
 }
