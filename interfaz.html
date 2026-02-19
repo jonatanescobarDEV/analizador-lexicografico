@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Validador de Lenguaje</title>
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/tabs.css">
+    <link rel="stylesheet" href="css/lexer-cells.css">
+    <link rel="stylesheet" href="css/parser.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Validador de Lenguaje</h1>
+        </header>
+        
+        <div class="column-container">
+            <div class="column">
+                <div class="card-header">
+                    <h3>Codigo Fuente</h3>
+                </div>
+                
+                <div class="controls-wrapper">
+                    <div class="input-section">
+                        <div class="file-group">
+                            <label for="archivo" class="btn-file-custom">
+                                Elegir Archivo
+                            </label>
+                            <input type="file" id="archivo" accept=".txt,.c,.cpp">
+                            <span id="file-name">Sin archivo seleccionado</span>
+                        </div>
+                        
+                        <div class="button-group">
+                            <button class="ejecutar" id="ejecutar">Ejecutar</button>
+                            <button class="limpiar" id="limpiar">Limpiar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <textarea id="editor" placeholder="Escribe tu codigo aqui o sube un archivo para validar..."></textarea>
+            </div>
+    
+            <div class="column">
+                <div class="card-header">
+                    <h3>Resultado</h3>
+                </div>
+
+                <div class="tabs-container">
+                    
+                    <div class="tabs-header">
+                        <button class="tab-btn" data-target="lexer">Lexer</button>
+                        <button class="tab-btn" data-target="parser">Estructuras</button>
+                        <button class="tab-btn active" data-target="parserll1">Parser LL(1)</button>
+                    </div>
+
+                    <div class="tab-content-box">
+            
+                        <div id="lexer" class="tab-pane">
+                            <div id="lexer-resultados">
+                                <p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar...</p>
+                            </div>
+                        </div>
+
+                        <div id="parser" class="tab-pane">
+                            <div id="panelResultados">
+                                <p class="empty-msg">Los resultados de estructuras apareceran aqui...</p>
+                            </div>
+                        </div>
+
+                        <div id="parserll1" class="tab-pane" style="display: block;">
+                            <div id="panelLL1">
+                                <p class="empty-msg">La ejecucion aritmetica aparecerá aquí...</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
