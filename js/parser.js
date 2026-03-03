@@ -63,11 +63,12 @@ let SimbolosD = {
 }
 
 class Nodo {
-    constructor(tipo, lexema, izq = null, der = null) {
+    constructor(tipo, lexema, izq = null, der = null, linea = null) {
         this.tipo = tipo;   
         this.lexema = lexema; 
         this.izq = izq;     
-        this.der = der;     
+        this.der = der;
+        this.linea = linea;     
     }
 }
 
@@ -90,7 +91,7 @@ export async function ejecutarAnalisis() {
 
         
     } catch (error) {
-        datosAImprimir.push(`<span class="codigo-error"><b>[Linea ${lookahead.linea}]</b> ${error.message}</span>`);
+        datosAImprimir.push(`<span class="codigo-error"> ${error.message}</span>`);
     }
     
     mostrarResultadoPanelParser(datosAImprimir);
@@ -150,7 +151,7 @@ function validarTokenObtenido(token) {
     else if (token.tipo == "EOF") { }
     else if (token.tipo == "ID") { }
 
-    else throw new Error(`Error Léxico: Carácter '${token.lexema}' no reconocido`);
+    else throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error Léxico: Carácter '${token.lexema}' no reconocido`);
 }
 
 function match(tipoEsperado) {
@@ -159,7 +160,7 @@ function match(tipoEsperado) {
         lookahead = obtenerSigTokenEspecifico();
         return tokenActual;
     }
-    throw new Error(`Error Sintáctico: Se esperaba '${tipoEsperado}', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error Sintáctico: Se esperaba '${tipoEsperado}', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function main() {
@@ -194,7 +195,7 @@ function L() {
         return instrucciones;
     }
 
-    throw new Error(`Error en L: Token '${lookahead.tipo}' ('${lookahead.lexema}') no permitido en lista de instrucciones`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error en L: Token '${lookahead.tipo}' ('${lookahead.lexema}') no permitido en lista de instrucciones`);
 }
 
 function I() {
@@ -203,7 +204,7 @@ function I() {
         match("IGUAL");
         const nodoE = E();
         match("PUNTO_COMA");
-        return new Nodo("ASIGNAR", idToken.lexema, null, nodoE);
+        return new Nodo("ASIGNAR", idToken.lexema, null, nodoE, idToken.linea);
     }
     else if (SimbolosD.I_COUT.includes(lookahead.tipo)) {
         match("COUT");
@@ -249,7 +250,7 @@ function I() {
         return new Nodo("WHILE", "while", condicion, bloqueWhile);
     }
 
-    throw new Error(`Error Sintáctico: Se esperaba una instrucción, pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error Sintáctico: Se esperaba una instrucción, pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function DecL(tipoDato) {
@@ -257,7 +258,7 @@ function DecL(tipoDato) {
         let idToken = match("ID");
         const valorInicial = InitO();
     
-        const nodoActual = new Nodo("DECLARAR", tipoDato, idToken.lexema, valorInicial);
+        const nodoActual = new Nodo("DECLARAR", tipoDato, idToken.lexema, valorInicial, idToken.linea);
 
         let masDeclaraciones = DecT(tipoDato);
 
@@ -273,7 +274,7 @@ function InitO() {
     else if (SimbolosD.INIT_O_EPSILON.includes(lookahead.tipo)) {
         return null;
     }
-    throw new Error(`Error en InitO: Se esperaba '=' o ',' o ';', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error en InitO: Se esperaba '=' o ',' o ';', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function DecT(tipoDato) {
@@ -285,7 +286,7 @@ function DecT(tipoDato) {
     else if (SimbolosD.DEC_T_EPSILON.includes(lookahead.tipo)) {
         return [];
     }
-    throw new Error(`Error en DecT: Se esperaba ',' o ';', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error en DecT: Se esperaba ',' o ';', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function Exp() {
@@ -297,7 +298,7 @@ function Exp() {
         return new Nodo("RELACIONAL", operadorRelacional, izq, der);
     }
 
-    throw new Error(`Error en Exp: Se esperaba número o ID o '(' o cadena o caracter, pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error en Exp: Se esperaba número o ID o '(' o cadena o caracter, pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function ExpRelO() {
@@ -309,7 +310,7 @@ function ExpRelO() {
         return operador;
     }
 
-    throw new Error(`Error en ExpRelO: Se esperaba un operador relacional, pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error en ExpRelO: Se esperaba un operador relacional, pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function ElseO() {
@@ -324,7 +325,7 @@ function ElseO() {
         return null;
     }
 
-    throw new Error(`Error en ElseO: Se esperaba 'else' o el final del bloque, pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error en ElseO: Se esperaba 'else' o el final del bloque, pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function Type() {
@@ -342,7 +343,15 @@ function E() {
         const nodoT = T();
         return X(nodoT);
     }
-    throw new Error(`Error en E: Se esperaba número, ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    else if (SimbolosD.E_CAD.includes(lookahead.tipo)) {
+        const cadenaToken = match("CADENA");
+        return new Nodo("CADENA", cadenaToken.lexema);
+    }
+    else if (SimbolosD.E_CAR.includes(lookahead.tipo)) {
+        const charToken = match("CARACTER");
+        return new Nodo("CARACTER", charToken.lexema);
+    }
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error en E: Se esperaba número o cadena o caracter o ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function X(nodoHeredado) {
@@ -361,7 +370,7 @@ function X(nodoHeredado) {
     else if (SimbolosD.X_EPSILON.includes(lookahead.tipo)) {
         return nodoHeredado;
     }
-    throw new Error(`Error en X: Token '${lookahead.tipo}' ('${lookahead.lexema}') no permitido tras expresión`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error en X: Token '${lookahead.tipo}' ('${lookahead.lexema}') no permitido tras expresión`);
 }
 
 function T() {
@@ -369,7 +378,7 @@ function T() {
         const nodoF = F();
         return W(nodoF);
     }
-    throw new Error(`Error en T: Se esperaba número, ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error en T: Se esperaba número, ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 function W(nodoHeredado) {
@@ -382,13 +391,13 @@ function W(nodoHeredado) {
     else if (SimbolosD.w_DIV.includes(lookahead.tipo)) {
         match("DIV");
         const nodoF = F();
-        const nodoDiv = new Nodo("DIV", "/", nodoHeredado, nodoF);
+        const nodoDiv = new Nodo("DIV", "/", nodoHeredado, nodoF, lookahead.linea);
         return W(nodoDiv);
     }
     else if (SimbolosD.W_EPSILON.includes(lookahead.tipo)) {
         return nodoHeredado;
     }
-    throw new Error(`Error en W: Token '${lookahead.tipo}' ('${lookahead.lexema}') no permitido tras término`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error en W: Token '${lookahead.tipo}' ('${lookahead.lexema}') no permitido tras término`);
 }
 
 function F() {
@@ -398,7 +407,7 @@ function F() {
     }
     else if (SimbolosD.F_ID.includes(lookahead.tipo)) {
         const idToken = match("ID");
-        return new Nodo("ID", idToken.lexema);
+        return new Nodo("ID", idToken.lexema, null, null, lookahead.linea);
     }
     else if (SimbolosD.F_PAREN.includes(lookahead.tipo)) {
         match("L_PAREN");
@@ -406,7 +415,7 @@ function F() {
         match("R_PAREN");
         return nodoE;
     }
-    throw new Error(`Error en F: Se esperaba número, ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
+    throw new Error(`<b>[Linea ${lookahead.linea}]</b> Error en F: Se esperaba número, ID o '(', pero se encontró '${lookahead.tipo}' ('${lookahead.lexema}')`);
 }
 
 let tablaSimbolos = {};
@@ -417,11 +426,14 @@ async function evaluar(nodo) {
     if (nodo.tipo == "NUM"){
         return Number(nodo.lexema);
     }
+    else if (nodo.tipo == "CADENA" || nodo.tipo == "CARACTER") {
+        return nodo.lexema.slice(1, -1); 
+    }
     else if (nodo.tipo == "ID"){
         if (nodo.lexema in tablaSimbolos) {
             return tablaSimbolos[nodo.lexema];
         }
-        throw new Error(`Error Semántico: Variable '${nodo.lexema}' no definida`);
+        throw new Error(`<b>[Linea ${nodo.linea}]</b> Error Semántico: Variable '${nodo.lexema}' no definida`);
     }
     else if (nodo.tipo == "SUMA"){
         return await evaluar(nodo.izq) + await evaluar(nodo.der);
@@ -435,7 +447,7 @@ async function evaluar(nodo) {
     else if (nodo.tipo == "DIV"){
         const divisor = await evaluar(nodo.der);
         if (divisor === 0) {
-            throw new Error("Error Semántico: División por cero");
+            throw new Error(`<b>[Linea ${nodo.linea}]</b> Error Semántico: División por cero`);
         }
         return await evaluar(nodo.izq) / divisor;
     }
@@ -457,7 +469,7 @@ async function evaluar(nodo) {
             datosAImprimir.push(`Asignación: ${nodo.lexema} = ${valor}`);
             return valor;
         }
-        throw new Error(`Error Semántico: Variable '${nodo.lexema}' no definida`);
+        throw new Error(`<b>[Linea ${nodo.linea}]</b> Error Semántico: Variable '${nodo.lexema}' no definida`);
     }
     else if (nodo.tipo == "IMPRIMIR"){
         let valor = await evaluar(nodo.der);
