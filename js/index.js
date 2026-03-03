@@ -1,9 +1,9 @@
 import { selectorArchivoCodFuente, areaTexto } from './main.js';
 import * as lexer from './lexer.js';
+import * as estructura from './estructura.js';
 import * as parser from './parser.js';
-import * as evaluador from './evaluador.js';
 
-export const modulos = [lexer, parser, evaluador];
+export const modulos = [lexer, estructura, parser];
 
 export let contenidoFuente = "";
 

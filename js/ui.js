@@ -47,3 +47,33 @@ export function mostrarResultadoPanelEstructura(val, tokens) {
 export function mostrarResultadoPanelParser(resultados) {
     panelParser.innerHTML = resultados.map(res => `<div class="codigo-valido">${res}</div>`).join("");
 }
+
+export async function pedirValorPanelParser(nombreVariable) {
+    const valorIngresado = await new Promise((resolve) => {
+        const panel = document.getElementById("panelLL1");
+        
+        const divInput = document.createElement("div");
+        divInput.innerHTML = `
+            <div>
+                <span class="codigo-entrada">[Entrada requerida] cin >> ${nombreVariable}: </span>
+                <input type="number" id="inputCin" class="input-cin" placeholder="Ingresa un número" />
+                <button id="btnCin" class="button-cin">Ingresar</button>
+            </div>
+        `;
+        panel.appendChild(divInput);
+        
+        const inputField = document.getElementById("inputCin");
+        const btn = document.getElementById("btnCin");
+        
+        inputField.focus();
+
+        btn.addEventListener("click", () => {
+            let valorStr = inputField.value;
+            resolve(valorStr);
+            
+            divInput.innerHTML = `<span class="codigo-entrada">[Entrada usuario] cin >> ${nombreVariable}: ${valorStr}</span>`;
+        });
+    });
+
+    return valorIngresado;
+}

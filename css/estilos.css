@@ -13,6 +13,10 @@ h1 {
     color: #dbeafe;
 }
 
+p {
+    color: #dbeafe;
+}
+
 body::before {
     content: "";
     position: fixed;
@@ -43,7 +47,7 @@ header {
 
 .column-container { 
     display: grid; 
-    grid-template-columns: 1fr 1.1fr; 
+    grid-template-columns: 1fr 1.45fr; 
     gap: 20px;
     align-items: start;
 }
@@ -70,8 +74,8 @@ header {
 
 .input-section { 
     display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
+    flex-direction: column;
+    gap: 10px;
 }
 
 .file-group {
@@ -116,6 +120,16 @@ textarea {
 .button-group {
     display: flex;
     gap: 10px;
+}
+
+.button-button-group {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
 }
 
 .ejecutar { 

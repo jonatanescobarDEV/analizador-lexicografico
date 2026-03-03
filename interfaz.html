@@ -11,7 +11,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Validador de Lenguaje</h1>
+            <h1>Validador de Lenguaje - Compilador: Linealización y Tercetos</h1>
+            <p>Proyecto para Lenguajes y Compiladores</p>
         </header>
         
         <div class="column-container">
@@ -23,16 +24,14 @@
                 <div class="controls-wrapper">
                     <div class="input-section">
                         <div class="file-group">
-                            <label for="archivo" class="btn-file-custom">
-                                Elegir Archivo
-                            </label>
+                            <label for="archivo" class="btn-file-custom">Elegir Archivo</label>
                             <input type="file" id="archivo" accept=".txt,.c,.cpp">
                             <span id="file-name">Sin archivo seleccionado</span>
                         </div>
                         
                         <div class="button-group">
-                            <button class="ejecutar" id="ejecutar">Ejecutar</button>
-                            <button class="limpiar" id="limpiar">Limpiar</button>
+                            <button class="ejecutar button-button-group" id="ejecutar">Ejecutar</button>
+                            <button class="limpiar button-button-group" id="limpiar">Limpiar</button>
                         </div>
                     </div>
                 </div>
@@ -50,8 +49,9 @@
                     
                     <div class="tabs-header">
                         <button class="tab-btn" data-target="lexer">Lexer</button>
-                        <button class="tab-btn" data-target="parser">Estructura si-mientras</button>
+                        <button class="tab-btn" data-target="estructura">Estructura si-mientras</button>
                         <button class="tab-btn active" data-target="parserll1">Parser LL(1)</button>
+                        <button class="tab-btn" data-target="linealizacion">Linealización - Tercetos - Assembler</button>
                     </div>
 
                     <div class="tab-content-box">
@@ -62,7 +62,7 @@
                             </div>
                         </div>
 
-                        <div id="parser" class="tab-pane">
+                        <div id="estructura" class="tab-pane">
                             <div id="panelResultados">
                                 <p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar...</p>
                             </div>
@@ -73,7 +73,13 @@
                                 <p class="empty-msg">La ejecucion aritmetica aparecerá aquí...</p>
                             </div>
                         </div>
-
+                        
+                        <div id="linealizacion" class="tab-pane">
+                            <div id="panelLinealizacion">
+                                <p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar...</p>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
             </div>
