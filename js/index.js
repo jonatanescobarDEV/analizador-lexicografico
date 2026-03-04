@@ -2,8 +2,9 @@ import { selectorArchivoCodFuente, areaTexto } from './main.js';
 import * as lexer from './lexer.js';
 import * as estructura from './estructura.js';
 import * as parser from './parser.js';
+import * as linealizador from './linealizador.js';
 
-export const modulos = [lexer, estructura, parser];
+export const modulos = [lexer, estructura, parser, linealizador];
 
 export let contenidoFuente = "";
 

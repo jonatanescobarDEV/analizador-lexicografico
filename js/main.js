@@ -8,6 +8,7 @@ botonLimpiar.addEventListener('click', limpiarTodo);
 export const panelLexer = document.getElementById('lexer-resultados');
 export const panelEstructura = document.getElementById('panelResultados');
 export const panelParser = document.getElementById('panelLL1');
+export const panelLTA = document.getElementById('panelLTA');
 panelEstructura.innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar... \n(si-sino-finsi-mientras-finmientras)\n\nEjemplo (A resolver):\nsi\nmientras\nsi\nfinsi\nmientras\nsi\nfinsi\nfinmientras\nfinsi</p>';
 panelParser.innerHTML = '<p class="empty-msg">La ejecucion aritmetica aparecerá aquí...\n\nEjemplo (A resolver):\na = 9;\nb = 2;\na = a + (b * 2);\ncout<< a;\ncout<< a + 45</p>';
 

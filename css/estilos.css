@@ -47,7 +47,7 @@ header {
 
 .column-container { 
     display: grid; 
-    grid-template-columns: 1fr 1.45fr; 
+    grid-template-columns: 1fr 2fr; 
     gap: 20px;
     align-items: start;
 }

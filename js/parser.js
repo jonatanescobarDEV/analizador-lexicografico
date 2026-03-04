@@ -3,6 +3,7 @@ import { mostrarResultadoPanelParser, pedirValorPanelParser } from "./ui.js";
 
 let datosAImprimir = [];
 let lookahead;
+export let astGlobal = null;
 
 let SimbolosD = {
     P:          ['INT', 'FLOAT', 'CADENA', 'CARACTER', 'ID', 'COUT', 'CIN', 'IF', 'WHILE', 'DO', 'EOF'],
@@ -87,14 +88,27 @@ export async function ejecutarAnalisis() {
         }
 
         let nodoPrincipal = main();
-        await ejecutar(nodoPrincipal);
-
+        astGlobal = nodoPrincipal;
+        
+        ejecutar(nodoPrincipal).then(() => {
+            mostrarResultadoPanelParser(datosAImprimir);
+        }).catch(error => {
+            // Captura Errores Semánticos (Ej. Variables no definidas)
+            datosAImprimir.push(`<span class="codigo-error"> ${error.message}</span>`);
+            mostrarResultadoPanelParser(datosAImprimir);
+            
+            // NUEVO: Fuerza a la interfaz a saltar a la pestaña del Parser
+            document.querySelector('[data-target="parserll1"]').click();
+        });
         
     } catch (error) {
+        // Captura Errores Léxicos y Sintácticos (Ej. Falta de punto y coma)
         datosAImprimir.push(`<span class="codigo-error"> ${error.message}</span>`);
+        mostrarResultadoPanelParser(datosAImprimir);
+        
+        // NUEVO: Fuerza a la interfaz a saltar a la pestaña del Parser
+        document.querySelector('[data-target="parserll1"]').click();
     }
-    
-    mostrarResultadoPanelParser(datosAImprimir);
 }
 
 function obtenerSigTokenEspecifico(){

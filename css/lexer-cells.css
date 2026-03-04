@@ -11,13 +11,13 @@
 
 .results-table th { 
     background: #f7fafc; 
-    padding: 15px; 
+    padding: 6px; 
     text-align: left; 
     border-bottom: 2px solid #e2e8f0; 
 }
 
 .results-table td { 
-    padding: 15px; 
+    padding: 10px; 
     border-bottom: 1px solid #edf2f7;
 }
 
